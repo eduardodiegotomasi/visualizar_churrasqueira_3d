@@ -1,26 +1,84 @@
-<!doctype HTML>
+<!doctype html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
     <script src="https://aframe.io/releases/0.6.1/aframe.min.js"></script>
     <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.5.0/aframe/build/aframe-ar.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+    </style>
   </head>
-  <body style="margin: 0px; overflow: hidden;">
-    
+
+  <body>
     <a-scene embedded arjs>
       
+      <!-- MARCADOR HIRO -->
       <a-marker preset="hiro">
-        
-        <a-entity
-          gltf-model="https://cdn.glitch.com/54f-49-90/Astrocer.glb?v.169918330" 
-          scale="0.05 0.05 0.05"     rotation="0 180 0"         position="0 0 0">
-        </a-entity>
 
+        <!-- CONJUNTO PRINCIPAL DA CHURRASQUEIRA -->
+        <a-entity id="churrasqueira" position="0 0 0" rotation="0 0 0">
+
+          <!-- BASE (parede inferior) -->
+          <a-box 
+            id="base"
+            width="1"
+            height="0.4"
+            depth="0.6"
+            position="0 0.2 0"
+            color="#444">
+          </a-box>
+
+          <!-- TAMPA SUPERIOR / CHAMINÉ -->
+          <a-box
+            id="tampa"
+            width="1"
+            height="0.25"
+            depth="0.6"
+            position="0 0.7 0"
+            opacity="0.85"
+            color="#222">
+          </a-box>
+
+          <!-- GRELHA (efeito simples com um plano cinza) -->
+          <a-plane
+            id="grelha"
+            width="0.9"
+            height="0.5"
+            rotation="-90 0 0"
+            position="0 0.45 0"
+            color="#888">
+          </a-plane>
+          
+          <!-- PÉS DA CHURRASQUEIRA -->
+          <a-box
+            width="0.1" height="0.4" depth="0.1"
+            position="-0.45 0.0 -0.25"
+            color="#333">
+          </a-box>
+
+          <a-box
+            width="0.1" height="0.4" depth="0.1"
+            position="-0.45 0.0 0.25"
+            color="#333">
+          </a-box>
+
+          <a-box
+            width="0.1" height="0.4" depth="0.1"
+            position="0.45 0.0 -0.25"
+            color="#333">
+          </a-box>
+
+          <a-box
+            width="0.1" height="0.4" depth="0.1"
+            position="0.45 0.0 0.25"
+            color="#333">
+          </a-box>
+
+        </a-entity>
       </a-marker>
 
+      <!-- CÂMERA -->
       <a-entity camera></a-entity>
-      
+
     </a-scene>
-    
   </body>
 </html>
