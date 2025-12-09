@@ -1,84 +1,27 @@
 <!doctype html>
 <html>
   <head>
-    <script src="https://aframe.io/releases/0.6.1/aframe.min.js"></script>
-    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.5.0/aframe/build/aframe-ar.js"></script>
+    <script type="module" 
+      src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+    </script>
     <style>
       body { margin: 0; overflow: hidden; }
+      model-viewer { width: 100vw; height: 100vh; }
     </style>
   </head>
 
   <body>
-    <a-scene embedded arjs>
-      
-      <!-- MARCADOR HIRO -->
-      <a-marker preset="hiro">
-
-        <!-- CONJUNTO PRINCIPAL DA CHURRASQUEIRA -->
-        <a-entity id="churrasqueira" position="0 0 0" rotation="0 0 0">
-
-          <!-- BASE (parede inferior) -->
-          <a-box 
-            id="base"
-            width="1"
-            height="0.4"
-            depth="0.6"
-            position="0 0.2 0"
-            color="#444">
-          </a-box>
-
-          <!-- TAMPA SUPERIOR / CHAMINÉ -->
-          <a-box
-            id="tampa"
-            width="1"
-            height="0.25"
-            depth="0.6"
-            position="0 0.7 0"
-            opacity="0.85"
-            color="#222">
-          </a-box>
-
-          <!-- GRELHA (efeito simples com um plano cinza) -->
-          <a-plane
-            id="grelha"
-            width="0.9"
-            height="0.5"
-            rotation="-90 0 0"
-            position="0 0.45 0"
-            color="#888">
-          </a-plane>
-          
-          <!-- PÉS DA CHURRASQUEIRA -->
-          <a-box
-            width="0.1" height="0.4" depth="0.1"
-            position="-0.45 0.0 -0.25"
-            color="#333">
-          </a-box>
-
-          <a-box
-            width="0.1" height="0.4" depth="0.1"
-            position="-0.45 0.0 0.25"
-            color="#333">
-          </a-box>
-
-          <a-box
-            width="0.1" height="0.4" depth="0.1"
-            position="0.45 0.0 -0.25"
-            color="#333">
-          </a-box>
-
-          <a-box
-            width="0.1" height="0.4" depth="0.1"
-            position="0.45 0.0 0.25"
-            color="#333">
-          </a-box>
-
-        </a-entity>
-      </a-marker>
-
-      <!-- CÂMERA -->
-      <a-entity camera></a-entity>
-
-    </a-scene>
+    <model-viewer
+      src="70479.glb"              <!-- teu modelo futuramente -->
+      ar                           <!-- ativa AR -->
+      ar-modes="webxr scene-viewer quick-look"
+      camera-controls
+      auto-rotate
+      shadow-intensity="0.6"
+      exposure="1.2"
+      disable-zoom                 <!-- opcional -->
+      placement="floor"            <!-- DETECÇÃO DO PISO -->
+      style="background-color: #000;">
+    </model-viewer>
   </body>
 </html>
