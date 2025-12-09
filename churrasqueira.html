@@ -7,17 +7,16 @@
   <body style='margin : 0px; overflow: hidden;'>
     <a-scene embedded arjs>
       
+      <a-assets>
+        <a-asset-item id="modeloChurras" src="70479.glb"></a-asset-item>
+      </a-assets>
+
       <a-marker preset="hiro">
         
         <a-entity
-          gltf-model="70479.glb" 
-          scale="0.3 0.3 0.3"
-          rotation="0 90 0"
-          position="-0.5 0 0"> </a-entity>
-        
-        <a-box 
-          position='0.5 0.5 0'  material='color: black;'>
-        </a-box>
+          gltf-model="#modeloChurras" 
+          scale="5 5 5"    position="0 0 0">
+        </a-entity>
 
       </a-marker>
       
