@@ -1,27 +1,84 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <script type="module" 
-      src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-    </script>
-    <style>
-      body { margin: 0; overflow: hidden; }
-      model-viewer { width: 100vw; height: 100vh; }
-    </style>
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <title>AR - Visualizar Peça</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+  <!-- AR.js para realidade aumentada -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+</head>
 
-  <body>
-    <model-viewer
-      src="70479.glb"              <!-- teu modelo futuramente -->
-      ar                           <!-- ativa AR -->
-      ar-modes="webxr scene-viewer quick-look"
-      camera-controls
-      auto-rotate
-      shadow-intensity="0.6"
-      exposure="1.2"
-      disable-zoom                 <!-- opcional -->
-      placement="floor"            <!-- DETECÇÃO DO PISO -->
-      style="background-color: #000;">
-    </model-viewer>
-  </body>
+<body>
+  <!-- Cena A-Frame com modo AR ativado -->
+  <a-scene 
+    vr-mode-ui="enabled: false"
+    arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+    embedded
+    renderer="antialias: true; alpha: true"
+  >
+    
+    <!-- Marcador para posicionar o modelo (marcador padrão Hiro) -->
+    <a-marker 
+      type="pattern" 
+      url="https://raw.githack.com/AR-js-org/AR.js/master/aframe/data/data/patt.hiro"
+      smooth="true"
+      smoothCount="10"
+      smoothTolerance="0.01"
+      smoothThreshold="5"
+    >
+      <!-- Sua peça 3D -->
+      <a-entity 
+        gltf-model="70479.glb"
+        position="0 0 0"
+        scale="0.1 0.1 0.1"
+        rotation="0 0 0"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+        look-at="[gps-camera]"
+      >
+      </a-entity>
+    </a-marker>
+    
+    <!-- Câmera -->
+    <a-entity camera></a-entity>
+  </a-scene>
+  
+  <script>
+    // Script para permitir rotação do modelo com toque/arrasto
+    let isRotating = false;
+    let previousTouchX = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+      isRotating = true;
+      previousTouchX = e.touches[0].clientX;
+    });
+    
+    document.addEventListener('touchmove', (e) => {
+      if (!isRotating) return;
+      
+      const currentTouchX = e.touches[0].clientX;
+      const deltaX = currentTouchX - previousTouchX;
+      const rotationSpeed = 0.5;
+      
+      const model = document.querySelector('a-entity[gltf-model]');
+      if (model) {
+        const currentRotation = model.getAttribute('rotation');
+        model.setAttribute('rotation', {
+          x: currentRotation.x,
+          y: currentRotation.y + deltaX * rotationSpeed,
+          z: currentRotation.z
+        });
+      }
+      
+      previousTouchX = currentTouchX;
+    });
+    
+    document.addEventListener('touchend', () => {
+      isRotating = false;
+    });
+  </script>
+</body>
 </html>
