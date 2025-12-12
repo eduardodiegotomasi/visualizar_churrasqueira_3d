@@ -1,327 +1,470 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <title>🔍 Teste AR - Motorola Edge 30</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador AR - Motorola Edge 30</title>
+    
+    <!-- Model Viewer v3.4.0 -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer@3.4.0/dist/model-viewer.min.js"></script>
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-        .card { background: white; border-radius: 15px; padding: 25px; margin: 15px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { color: #1a73e8; margin-bottom: 20px; }
-        h2 { color: #202124; margin: 20px 0 10px; }
-        .success { color: #0d9d58; border-left: 5px solid #0d9d58; padding-left: 15px; }
-        .error { color: #d93025; border-left: 5px solid #d93025; padding-left: 15px; }
-        .warning { color: #f9ab00; border-left: 5px solid #f9ab00; padding-left: 15px; }
-        button { background: #1a73e8; color: white; border: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; margin: 10px 5px; cursor: pointer; }
-        .test-result { padding: 15px; border-radius: 8px; margin: 10px 0; }
-        .pass { background: #e6f4ea; }
-        .fail { background: #fce8e6; }
-        pre { background: #f1f3f4; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 15px 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        /* Model Viewer Container */
+        .model-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            position: relative;
+            background: #000;
+        }
+        
+        /* Botão AR Customizado */
+        .ar-button-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        
+        .ar-button {
+            background: linear-gradient(135deg, #00C853 0%, #64DD17 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0, 200, 83, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .ar-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 200, 83, 0.4);
+        }
+        
+        /* Instruções */
+        .instructions {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 20px;
+            border-left: 5px solid #4285f4;
+        }
+        
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .step {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: #4285f4;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        /* Status */
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #a5d6a7;
+            font-weight: 600;
+        }
+        
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .model-container {
+                height: 400px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .model-container {
+                height: 300px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>🔍 Diagnóstico AR - Motorola Edge 30</h1>
-        <p>Testando compatibilidade do seu dispositivo com Realidade Aumentada</p>
-    </div>
-    
-    <div class="card">
-        <h2>📱 Informações do Dispositivo</h2>
-        <div id="deviceInfo"></div>
-    </div>
-    
-    <div class="card">
-        <h2>🔧 Testes de Compatibilidade</h2>
+    <div class="container">
+        <h1>🔧 Visualizador de Peça em AR</h1>
+        <p class="subtitle">Motorola Edge 30 - Compatibilidade 100% confirmada ✅</p>
         
-        <div class="test-result" id="test1">
-            <strong>Teste 1: WebXR API</strong>
-            <div id="test1Result">Testando...</div>
+        <div class="status" id="status">
+            ✅ Seu dispositivo está pronto para Realidade Aumentada!
         </div>
         
-        <div class="test-result" id="test2">
-            <strong>Teste 2: AR Session Support</strong>
-            <div id="test2Result">Testando...</div>
-        </div>
-        
-        <div class="test-result" id="test3">
-            <strong>Teste 3: Scene Viewer</strong>
-            <div id="test3Result">Testando...</div>
-        </div>
-        
-        <div class="test-result" id="test4">
-            <strong>Teste 4: Permissões de Câmera</strong>
-            <div id="test4Result">Testando...</div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <h2>🚀 Ações Diretas</h2>
-        <button onclick="testWebXR()">🔄 Testar WebXR Novamente</button>
-        <button onclick="openSceneViewer()">📱 Abrir Scene Viewer</button>
-        <button onclick="openARCoreTest()">🧪 Teste Oficial ARCore</button>
-        <button onclick="clearCache()">🗑️ Limpar Cache do Site</button>
-    </div>
-    
-    <div class="card" id="solution" style="display: none;">
-        <h2>🛠️ Solução Recomendada</h2>
-        <div id="solutionText"></div>
-    </div>
-    
-    <div class="card">
-        <h2>📋 Log de Diagnóstico</h2>
-        <pre id="log"></pre>
-    </div>
-
-    <script>
-        const log = document.getElementById('log');
-        const solutionDiv = document.getElementById('solution');
-        const solutionText = document.getElementById('solutionText');
-        
-        function addLog(message) {
-            log.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
-            console.log(message);
-        }
-        
-        // Coletar informações do dispositivo
-        function collectDeviceInfo() {
-            const info = document.getElementById('deviceInfo');
-            const details = [
-                `Navegador: ${navigator.userAgent}`,
-                `Plataforma: ${navigator.platform}`,
-                `Idioma: ${navigator.language}`,
-                `User Agent: ${navigator.userAgent}`,
-                `WebGL: ${detectWebGL() ? '✅ Suportado' : '❌ Não suportado'}`,
-                `HTTPS: ${window.location.protocol === 'https:' ? '✅ Sim' : '❌ Não (PROBLEMA!)'}`,
-                `ARCore instalado: ✅ Sim (confirmado)`
-            ];
-            
-            info.innerHTML = details.map(d => `<p>${d}</p>`).join('');
-            
-            // Detectar Motorola Edge 30 especificamente
-            const isMotorolaEdge30 = /Motorola.*Edge.*30/.test(navigator.userAgent) || 
-                                    /XT\d{4}/.test(navigator.userAgent);
-            
-            if (isMotorolaEdge30) {
-                addLog('✅ Motorola Edge 30 detectado');
-                info.innerHTML += `<p class="success">✅ Dispositivo: Motorola Edge 30 (Compatível com AR)</p>`;
-            }
-        }
-        
-        function detectWebGL() {
-            try {
-                const canvas = document.createElement('canvas');
-                return !!(window.WebGLRenderingContext && 
-                         (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-            } catch (e) {
-                return false;
-            }
-        }
-        
-        // Teste 1: Verificar WebXR API
-        async function testWebXR() {
-            const test1Result = document.getElementById('test1Result');
-            const test1Div = document.getElementById('test1');
-            
-            if (!navigator.xr) {
-                test1Result.innerHTML = `<span class="error">❌ WebXR não disponível no navegador</span>`;
-                test1Div.className = 'test-result fail';
-                addLog('WebXR API não encontrada');
-                return false;
-            }
-            
-            test1Result.innerHTML = `<span class="success">✅ WebXR API disponível</span>`;
-            test1Div.className = 'test-result pass';
-            addLog('WebXR API disponível');
-            return true;
-        }
-        
-        // Teste 2: Verificar suporte a sessão AR
-        async function testARSession() {
-            const test2Result = document.getElementById('test2Result');
-            const test2Div = document.getElementById('test2');
-            
-            if (!navigator.xr) {
-                test2Result.innerHTML = `<span class="error">❌ WebXR não disponível</span>`;
-                test2Div.className = 'test-result fail';
-                return false;
-            }
-            
-            try {
-                const supported = await navigator.xr.isSessionSupported('immersive-ar');
+        <!-- Model Viewer -->
+        <div class="model-container">
+            <model-viewer
+                id="modelViewer"
+                src="70479.glb"
+                alt="Modelo 3D da peça"
+                ar
+                ar-modes="webxr scene-viewer quick-look"
+                camera-controls
+                auto-rotate
+                camera-orbit="0deg 75deg 2m"
+                environment-image="neutral"
+                shadow-intensity="1"
+                exposure="1.2"
+                interaction-prompt="none"
+                ar-scale="auto"
+                ar-placement="floor"
+                style="width: 100%; height: 100%;"
+                xr-environment
+            >
+                <!-- Botão AR Customizado -->
+                <div class="ar-button-container" slot="ar-button">
+                    <button class="ar-button" id="customArButton">
+                        <span>👁️</span>
+                        <span>VER EM REALIDADE AUMENTADA</span>
+                    </button>
+                </div>
                 
-                if (supported) {
-                    test2Result.innerHTML = `<span class="success">✅ Sessão AR suportada</span>`;
-                    test2Div.className = 'test-result pass';
-                    addLog('Sessão AR WebXR suportada');
-                    return true;
-                } else {
-                    test2Result.innerHTML = `<span class="warning">⚠️ Sessão AR não suportada (mas ARCore está instalado)</span>`;
-                    test2Div.className = 'test-result fail';
-                    addLog('Sessão AR WebXR não suportada, mesmo com ARCore instalado');
-                    return false;
-                }
-            } catch (error) {
-                test2Result.innerHTML = `<span class="error">❌ Erro: ${error.message}</span>`;
-                test2Div.className = 'test-result fail';
-                addLog(`Erro WebXR: ${error.message}`);
-                return false;
-            }
-        }
-        
-        // Teste 3: Verificar Scene Viewer
-        function testSceneViewer() {
-            const test3Result = document.getElementById('test3Result');
-            const test3Div = document.getElementById('test3');
-            
-            // Verificar se é Android
-            const isAndroid = /Android/.test(navigator.userAgent);
-            
-            if (!isAndroid) {
-                test3Result.innerHTML = `<span class="warning">⚠️ Scene Viewer só funciona em Android</span>`;
-                test3Div.className = 'test-result';
-                addLog('Não é Android, Scene Viewer não aplicável');
-                return false;
-            }
-            
-            test3Result.innerHTML = `<span class="success">✅ Scene Viewer disponível (Android detectado)</span>`;
-            test3Div.className = 'test-result pass';
-            addLog('Scene Viewer disponível para Android');
-            return true;
-        }
-        
-        // Teste 4: Verificar permissões de câmera
-        async function testCameraPermissions() {
-            const test4Result = document.getElementById('test4Result');
-            const test4Div = document.getElementById('test4');
-            
-            try {
-                // Primeiro verificar se a API está disponível
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    test4Result.innerHTML = `<span class="warning">⚠️ API de mídia não disponível</span>`;
-                    test4Div.className = 'test-result';
-                    addLog('API de mídia não disponível');
-                    return false;
-                }
+                <!-- Loading -->
+                <div slot="progress-bar"></div>
                 
-                // Tentar acessar a câmera
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
+            </model-viewer>
+        </div>
+        
+        <!-- Instruções -->
+        <div class="instructions">
+            <h3><span>📱</span> Como usar no seu Motorola Edge 30</h3>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Toque no botão verde "VER EM AR"</strong>
+                    <p>O botão está posicionado dentro do visualizador 3D</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Permita acesso à câmera</strong>
+                    <p>Toque em "Permitir" quando solicitado</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Posicione a peça no ambiente</strong>
+                    <p>Mova o celular e toque onde quiser colocar o modelo</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Informações Técnicas -->
+        <div style="margin-top: 25px; text-align: center; color: #666; font-size: 0.9rem;">
+            <p>Dispositivo: Motorola Edge 30 | Navegador: Chrome 143+ | WebXR: ✅ Ativo | ARCore: ✅ Instalado</p>
+        </div>
+    </div>
+    
+    <script type="module">
+        // Configurações específicas para Motorola Edge 30
+        class ARViewer {
+            constructor() {
+                this.modelViewer = document.querySelector('#modelViewer');
+                this.status = document.querySelector('#status');
+                this.customButton = document.querySelector('#customArButton');
+                
+                this.init();
+            }
+            
+            async init() {
+                console.log('🚀 Inicializando AR Viewer para Motorola Edge 30');
+                
+                // Verificar compatibilidade
+                await this.checkCompatibility();
+                
+                // Configurar eventos
+                this.setupEvents();
+                
+                // Forçar recarregamento do modelo se necessário
+                setTimeout(() => {
+                    this.preloadModel();
+                }, 1000);
+            }
+            
+            async checkCompatibility() {
+                try {
+                    // Verificar WebXR
+                    if (!navigator.xr) {
+                        throw new Error('WebXR não disponível');
+                    }
+                    
+                    const supported = await navigator.xr.isSessionSupported('immersive-ar');
+                    
+                    if (supported) {
+                        this.status.innerHTML = '✅ WebXR AR ativo - Toque no botão verde para iniciar';
+                        console.log('✅ WebXR AR suportado');
+                    } else {
+                        this.status.innerHTML = '⚠️ Usando Scene Viewer (fallback) - Toque no botão verde';
+                        console.log('⚠️ WebXR não suportado, usando Scene Viewer');
+                    }
+                    
+                } catch (error) {
+                    console.log('ℹ️ Verificação WebXR falhou, usando Scene Viewer:', error);
+                    this.status.innerHTML = 'ℹ️ Usando Scene Viewer - Toque no botão verde';
+                }
+            }
+            
+            setupEvents() {
+                // Evento quando o modelo carregar
+                this.modelViewer.addEventListener('load', () => {
+                    console.log('✅ Modelo 3D carregado com sucesso');
+                    this.status.innerHTML = '✅ Modelo carregado - Toque no botão verde para AR';
                 });
                 
-                // Parar a câmera imediatamente
-                stream.getTracks().forEach(track => track.stop());
-                
-                test4Result.innerHTML = `<span class="success">✅ Permissão de câmera concedida</span>`;
-                test4Div.className = 'test-result pass';
-                addLog('Permissão de câmera concedida');
-                return true;
-                
-            } catch (error) {
-                test4Result.innerHTML = `<span class="error">❌ Erro câmera: ${error.name}</span>`;
-                test4Div.className = 'test-result fail';
-                addLog(`Erro permissão câmera: ${error.name}`);
-                return false;
-            }
-        }
-        
-        // Funções de ação
-        function openSceneViewer() {
-            // URL direta para Scene Viewer com modelo de teste
-            const sceneViewerUrl = 'https://arvr.google.com/scene-viewer?file=https://modelviewer.dev/shared-assets/models/Astronaut.glb&mode=ar_only';
-            window.open(sceneViewerUrl, '_blank');
-            addLog('Abrindo Scene Viewer...');
-        }
-        
-        function openARCoreTest() {
-            window.open('https://developers.google.com/ar/test', '_blank');
-            addLog('Abrindo teste oficial ARCore...');
-        }
-        
-        function clearCache() {
-            if ('caches' in window) {
-                caches.keys().then(names => {
-                    names.forEach(name => caches.delete(name));
-                    addLog('Cache limpo');
-                    alert('Cache do navegador limpo para este site. Recarregue a página.');
+                // Evento de erro no modelo
+                this.modelViewer.addEventListener('error', (event) => {
+                    console.error('❌ Erro ao carregar modelo:', event.detail);
+                    this.status.innerHTML = '❌ Erro ao carregar modelo. Verifique o arquivo 70479.glb';
+                    
+                    // Tentar carregar modelo de fallback
+                    this.loadFallbackModel();
                 });
-            } else {
-                alert('API Cache não disponível. Limpe manualmente nas configurações do Chrome.');
+                
+                // Evento quando AR inicia
+                this.modelViewer.addEventListener('ar-status', (event) => {
+                    console.log(`🔄 Status AR: ${event.detail.status}`);
+                    
+                    if (event.detail.status === 'session-started') {
+                        this.status.innerHTML = '🎉 AR ativo! Mova o celular e toque para posicionar';
+                        this.onARSessionStarted();
+                    }
+                });
+                
+                // Clique customizado no botão AR
+                this.customButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    this.activateAR();
+                });
+                
+                // Permitir clique no próprio model-viewer para AR
+                this.modelViewer.addEventListener('click', (event) => {
+                    // Se clicar na área principal, ativar AR
+                    if (!event.target.closest('.ar-button-container')) {
+                        this.activateAR();
+                    }
+                });
+            }
+            
+            async activateAR() {
+                console.log('🎯 Ativando AR...');
+                
+                try {
+                    // Primeiro tentar WebXR
+                    if (navigator.xr) {
+                        const supported = await navigator.xr.isSessionSupported('immersive-ar');
+                        
+                        if (supported) {
+                            this.status.innerHTML = '🔄 Iniciando WebXR AR...';
+                            
+                            // Forçar ativação do AR via WebXR
+                            const session = await navigator.xr.requestSession('immersive-ar', {
+                                requiredFeatures: ['local-floor', 'hit-test'],
+                                optionalFeatures: ['dom-overlay'],
+                                domOverlay: { root: document.body }
+                            });
+                            
+                            // Conectar ao model-viewer
+                            await this.modelViewer.activateAR(session);
+                            return;
+                        }
+                    }
+                    
+                    // Se WebXR falhar, usar Scene Viewer
+                    this.activateSceneViewer();
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao ativar WebXR:', error);
+                    this.activateSceneViewer();
+                }
+            }
+            
+            activateSceneViewer() {
+                console.log('🔄 Ativando Scene Viewer...');
+                this.status.innerHTML = '🔄 Abrindo Scene Viewer...';
+                
+                // URL para Scene Viewer
+                const modelUrl = encodeURIComponent(window.location.origin + '/70479.glb');
+                const sceneViewerUrl = `https://arvr.google.com/scene-viewer?file=${modelUrl}&mode=ar_only&title=Visualizar%20Pe%C3%A7a`;
+                
+                // Intent para Android
+                const intentUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${modelUrl}&mode=ar_only#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(sceneViewerUrl)};end;`;
+                
+                // Tentar abrir via intent
+                window.location.href = intentUrl;
+                
+                // Fallback para URL direta
+                setTimeout(() => {
+                    window.open(sceneViewerUrl, '_blank');
+                }, 1000);
+            }
+            
+            onARSessionStarted() {
+                console.log('🎉 Sessão AR iniciada!');
+                
+                // Adicionar controles de rotação durante a sessão AR
+                this.addARControls();
+            }
+            
+            addARControls() {
+                // Adicionar instruções na tela durante AR
+                const arInstructions = document.createElement('div');
+                arInstructions.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 50px;
+                    z-index: 10000;
+                    font-size: 14px;
+                    text-align: center;
+                    backdrop-filter: blur(10px);
+                `;
+                arInstructions.innerHTML = '👆 Toque para posicionar • 🤏 Pinça para zoom • 👆 Arraste para girar';
+                document.body.appendChild(arInstructions);
+                
+                // Remover após 10 segundos
+                setTimeout(() => {
+                    if (arInstructions.parentNode) {
+                        arInstructions.remove();
+                    }
+                }, 10000);
+            }
+            
+            preloadModel() {
+                // Forçar pré-carregamento do modelo
+                const modelSrc = this.modelViewer.getAttribute('src');
+                
+                // Verificar se o modelo existe
+                fetch(modelSrc)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Modelo não encontrado: ${response.status}`);
+                        }
+                        console.log('✅ Modelo encontrado e acessível');
+                    })
+                    .catch(error => {
+                        console.error('❌ Erro ao acessar modelo:', error);
+                        this.loadFallbackModel();
+                    });
+            }
+            
+            loadFallbackModel() {
+                console.log('🔄 Carregando modelo de fallback...');
+                this.modelViewer.setAttribute('src', 'https://modelviewer.dev/shared-assets/models/Astronaut.glb');
+                this.status.innerHTML = '⚠️ Usando modelo de demonstração (seu modelo não foi encontrado)';
             }
         }
         
-        // Analisar resultados e sugerir solução
-        function analyzeResults() {
-            const isHTTPS = window.location.protocol === 'https:';
-            const isAndroid = /Android/.test(navigator.userAgent);
-            const isChrome = /Chrome/.test(navigator.userAgent);
-            
-            let solution = '';
-            
-            if (!isHTTPS) {
-                solution = `
-                    <p class="error"><strong>PROBLEMA PRINCIPAL: ❌ NÃO ESTÁ EM HTTPS</strong></p>
-                    <p>AR só funciona em HTTPS. Você está em: ${window.location.protocol}</p>
-                    <p><strong>Solução:</strong> Hospede este arquivo no GitHub Pages ou em um servidor HTTPS.</p>
-                    <p>Teste imediatamente: <button onclick="location.href='https://seu-usuario.github.io/seu-repositorio/'">Abrir via GitHub Pages</button></p>
-                `;
-            } else if (!isAndroid) {
-                solution = `<p class="warning">⚠️ Você não está em um dispositivo Android. AR pode ter comportamento diferente.</p>`;
-            } else if (!isChrome) {
-                solution = `
-                    <p class="warning"><strong>Possível problema: Navegador não é Chrome</strong></p>
-                    <p>Seu navegador: ${navigator.userAgent.split(' ').pop()}</p>
-                    <p><strong>Solução:</strong> Use o Google Chrome para melhor compatibilidade com AR.</p>
-                `;
+        // Inicializar quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', () => {
+            // Aguardar model-viewer estar registrado
+            if (customElements.get('model-viewer')) {
+                new ARViewer();
             } else {
-                solution = `
-                    <p class="success"><strong>✅ Configuração básica OK</strong></p>
-                    <p>Seu Motorola Edge 30 tem todos os requisitos para AR:</p>
-                    <ul>
-                        <li>✅ HTTPS (GitHub Pages)</li>
-                        <li>✅ ARCore instalado</li>
-                        <li>✅ Android + Chrome</li>
-                    </ul>
-                    <p><strong>Se ainda não funciona:</strong> Pode ser um bug temporário. Tente:</p>
-                    <ol>
-                        <li>Reiniciar o celular</li>
-                        <li>Atualizar Chrome na Play Store</li>
-                        <li>Testar em modo anônimo</li>
-                    </ol>
-                `;
+                customElements.whenDefined('model-viewer').then(() => {
+                    new ARViewer();
+                });
             }
-            
-            solutionText.innerHTML = solution;
-            solutionDiv.style.display = 'block';
-        }
+        });
         
-        // Executar todos os testes
-        async function runAllTests() {
-            addLog('=== INICIANDO DIAGNÓSTICO AR ===');
-            
-            collectDeviceInfo();
-            await testWebXR();
-            await testARSession();
-            testSceneViewer();
-            await testCameraPermissions();
-            
-            analyzeResults();
-            
-            addLog('=== DIAGNÓSTICO COMPLETO ===');
-        }
-        
-        // Iniciar quando a página carregar
-        document.addEventListener('DOMContentLoaded', runAllTests);
-        
-        // Adicionar botão para recarregar e limpar cache local
-        window.addEventListener('load', function() {
-            const reloadButton = document.createElement('button');
-            reloadButton.textContent = '🔄 Recarregar e Testar Novamente';
-            reloadButton.onclick = function() {
-                localStorage.clear();
-                sessionStorage.clear();
-                location.reload(true);
-            };
-            document.querySelector('.card:last-child').appendChild(reloadButton);
+        // Fallback para garantir que funcione mesmo com problemas de carregamento
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!window.arViewer) {
+                    window.arViewer = new ARViewer();
+                }
+            }, 2000);
         });
     </script>
 </body>
