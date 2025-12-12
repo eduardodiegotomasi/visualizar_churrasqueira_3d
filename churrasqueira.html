@@ -2,82 +2,184 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AR - Visualizar Peça</title>
+  <title>AR sem Marcador</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-  <!-- AR.js para realidade aumentada -->
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <!-- AR.js com WebXR (para AR sem marcador) -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
+    .ar-prompt {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 20px;
+      z-index: 1000;
+      text-align: center;
+      font-family: Arial;
+    }
   </style>
 </head>
 
 <body>
-  <!-- Cena A-Frame com modo AR ativado -->
-  <a-scene 
+  <!-- Cena AR com detecção de superfície -->
+  <a-scene
     vr-mode-ui="enabled: false"
-    arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+    renderer="logarithmicDepthBuffer: true;"
     embedded
-    renderer="antialias: true; alpha: true"
+    arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
   >
     
-    <!-- Marcador para posicionar o modelo (marcador padrão Hiro) -->
-    <a-marker 
-      type="pattern" 
-      url="https://raw.githack.com/AR-js-org/AR.js/master/aframe/data/data/patt.hiro"
-      smooth="true"
-      smoothCount="10"
-      smoothTolerance="0.01"
-      smoothThreshold="5"
+    <!-- Marcador de superfície (não precisa de padrão físico) -->
+    <a-entity id="model"
+      gltf-model="70479.glb"
+      scale="0.05 0.05 0.05"
+      position="0 0 0"
+      rotation="0 0 0"
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+      gps-entity-place="latitude: 0; longitude: 0;"
+      gesture-handler="minScale: 0.25; maxScale: 4"
+      visible="false"
     >
-      <!-- Sua peça 3D -->
-      <a-entity 
-        gltf-model="70479.glb"
-        position="0 0 0"
-        scale="0.1 0.1 0.1"
-        rotation="0 0 0"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
-        look-at="[gps-camera]"
-      >
-      </a-entity>
-    </a-marker>
+    </a-entity>
+    
+    <!-- Plano de detecção (superfície) -->
+    <a-plane 
+      id="floor"
+      position="0 0 0"
+      rotation="-90 0 0"
+      width="100"
+      height="100"
+      visible="false"
+      material="transparent: true; opacity: 0"
+      arjs-hit-test="recursive: true"
+      raycaster="objects: #model"
+    >
+    </a-plane>
     
     <!-- Câmera -->
-    <a-entity camera></a-entity>
+    <a-camera 
+      id="camera"
+      look-controls="enabled: true"
+      mouse-cursor
+      raycaster="objects: #floor"
+    >
+      <!-- Cursor para tocar na tela -->
+      <a-cursor 
+        id="cursor"
+        rayOrigin="mouse"
+        fuse="true"
+        fuseTimeout="500"
+      ></a-cursor>
+    </a-camera>
+    
   </a-scene>
   
+  <div class="ar-prompt">
+    👆 Toque na tela para posicionar a peça
+  </div>
+  
   <script>
-    // Script para permitir rotação do modelo com toque/arrasto
-    let isRotating = false;
-    let previousTouchX = 0;
-    
-    document.addEventListener('touchstart', (e) => {
-      isRotating = true;
-      previousTouchX = e.touches[0].clientX;
-    });
-    
-    document.addEventListener('touchmove', (e) => {
-      if (!isRotating) return;
+    // Esperar a cena carregar
+    document.querySelector('a-scene').addEventListener('loaded', function() {
+      const model = document.querySelector('#model');
+      const cursor = document.querySelector('#cursor');
+      const floor = document.querySelector('#floor');
       
-      const currentTouchX = e.touches[0].clientX;
-      const deltaX = currentTouchX - previousTouchX;
-      const rotationSpeed = 0.5;
+      // Quando tocar na tela para posicionar
+      floor.addEventListener('click', function(evt) {
+        const hitPoint = evt.detail.intersection.point;
+        
+        // Posicionar modelo no ponto tocado
+        model.setAttribute('position', {
+          x: hitPoint.x,
+          y: hitPoint.y,
+          z: hitPoint.z
+        });
+        
+        // Tornar visível
+        model.setAttribute('visible', 'true');
+        
+        // Remover prompt
+        document.querySelector('.ar-prompt').style.display = 'none';
+      });
       
-      const model = document.querySelector('a-entity[gltf-model]');
-      if (model) {
+      // Rotação com toque e arrasto
+      let isRotating = false;
+      let lastTouchX = 0;
+      let lastTouchY = 0;
+      
+      model.addEventListener('touchstart', function(e) {
+        isRotating = true;
+        lastTouchX = e.touches[0].clientX;
+        lastTouchY = e.touches[0].clientY;
+        e.stopPropagation();
+      });
+      
+      model.addEventListener('touchmove', function(e) {
+        if (!isRotating) return;
+        
+        const deltaX = e.touches[0].clientX - lastTouchX;
+        const deltaY = e.touches[0].clientY - lastTouchY;
+        
         const currentRotation = model.getAttribute('rotation');
+        
+        // Rotacionar horizontalmente (eixo Y)
         model.setAttribute('rotation', {
-          x: currentRotation.x,
-          y: currentRotation.y + deltaX * rotationSpeed,
+          x: currentRotation.x + deltaY * 0.5,
+          y: currentRotation.y + deltaX * 0.5,
           z: currentRotation.z
         });
-      }
+        
+        lastTouchX = e.touches[0].clientX;
+        lastTouchY = e.touches[0].clientY;
+        
+        e.preventDefault();
+        e.stopPropagation();
+      });
       
-      previousTouchX = currentTouchX;
-    });
-    
-    document.addEventListener('touchend', () => {
-      isRotating = false;
+      model.addEventListener('touchend', function() {
+        isRotating = false;
+      });
+      
+      // Zoom com pinça (para dispositivos móveis)
+      let initialDistance = 0;
+      
+      model.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+          initialDistance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+          );
+        }
+      });
+      
+      model.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2 && isRotating) {
+          const currentDistance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+          );
+          
+          const scaleFactor = currentDistance / initialDistance;
+          const currentScale = model.getAttribute('scale');
+          
+          // Limitar escala mínima e máxima
+          const newScale = {
+            x: Math.max(0.01, Math.min(0.2, currentScale.x * scaleFactor)),
+            y: Math.max(0.01, Math.min(0.2, currentScale.y * scaleFactor)),
+            z: Math.max(0.01, Math.min(0.2, currentScale.z * scaleFactor))
+          };
+          
+          model.setAttribute('scale', newScale);
+          initialDistance = currentDistance;
+          
+          e.preventDefault();
+        }
+      });
     });
   </script>
 </body>
